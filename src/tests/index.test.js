@@ -12,11 +12,12 @@ import useForm from '../use-form.js'
 
 const FormExample = () => {
   const { register } = useForm()
-  const input = register('test')
+  const { props, isTouched } = register('test')
 
   return (
     <form>
-      <input type='text' {...input} />
+      <input type='text' {...props} />
+      {isTouched && <span>input touched</span>}
     </form>
   )
 }
@@ -31,11 +32,11 @@ describe('Create inputs with add helper', () => {
 
     expect('name' in result.current.fields).toBeTruthy()
     expect(Object.keys(result.current.fields.name).sort()).toEqual(
-      ['value', 'name', 'errors', 'validators'].sort()
+      ['props', 'name', 'errors', 'isTouched', 'validators'].sort()
     )
   })
 
-  it('must change internal state of input', () => {
+  it('must change internal state of input when entered text', () => {
     render(<FormExample />)
 
     const input = screen.getByRole('textbox')
@@ -45,5 +46,15 @@ describe('Create inputs with add helper', () => {
 
     fireEvent.change(input, { target: { value: 'orale' } })
     expect(input.value).toBe('orale')
+  })
+
+  it('must change isTouched when focused for the first time', () => {
+    render(<FormExample />)
+
+    const input = screen.getByRole('textbox')
+    fireEvent.focus(input)
+
+    const span = screen.getByText('input touched')
+    expect(span).toBeInTheDocument()
   })
 })
