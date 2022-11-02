@@ -32,7 +32,7 @@ describe('Create inputs with add helper', () => {
 
     expect('name' in result.current.fields).toBeTruthy()
     expect(Object.keys(result.current.fields.name).sort()).toEqual(
-      ['props', 'name', 'errors', 'isTouched', 'validators'].sort()
+      ['props', 'name', 'errors', 'isTouched', 'validations'].sort()
     )
   })
 
