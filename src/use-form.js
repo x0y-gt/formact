@@ -1,9 +1,16 @@
 import { useCallback, useReducer } from 'react'
 // import field from './field'
 
+/*
+ * Each validator return true if error
+ */
 const definedValidations = {
   required: (val) => !String(val).trim().length,
-  minLength: (val, opts) => String(val).trim().length < opts
+  minLength: (val, opts) => String(val).trim().length < opts,
+  maxLength: (val, opts) => String(val).trim().length > opts,
+  min: (val, opts) => isNaN(val) || Number(val) < opts,
+  max: (val, opts) => isNaN(val) || Number(val) > opts,
+  regex: (val, opts) => Number(val) > opts
 }
 
 function validate(value, validations) {
@@ -49,7 +56,7 @@ function field(name, dispatchAction, opts = {}) {
     onBlur: (e) => {
       if (validations) {
         const errors = validate(e.target.value, validations)
-        if (errors.length)
+        if (ctx.errors || errors.length)
           dispatchAction({
             action: 'error',
             payload: { name, errors }
