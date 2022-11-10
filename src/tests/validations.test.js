@@ -13,6 +13,7 @@ const FormExample = ({ validations }) => {
 
   return (
     <form>
+      <h1>Testing</h1>
       <input type='text' {...props} />
       {isTouched && errors && <span>input has errors</span>}
     </form>
@@ -74,36 +75,36 @@ describe('Input validations', () => {
     return render(<FormExample2 validations={validations} />)
   }
 
-  it('must show error when validation fails', () => {
+  it('must show error when validation fails', async () => {
     setup1()
 
     const input = screen.getByRole('textbox')
-    fireEvent.focus(input)
-    fireEvent.blur(input)
+    await userEvent.click(input)
+    await userEvent.click(screen.queryByText('Testing')) // to blur
+    // fireEvent.focus(input)
+    // fireEvent.blur(input)
     const span = screen.getByText('input has errors')
 
     expect(span).toBeInTheDocument()
   })
 
-  it('must not show error when validation is ok', () => {
+  it('must not show error when validation is ok', async () => {
     setup1()
 
     const input = screen.getByRole('textbox')
-    fireEvent.focus(input)
-    fireEvent.change(input, { target: { value: 'holi' } })
-    fireEvent.blur(input)
+    await userEvent.type(input, 'holi')
+    await userEvent.click(screen.queryByText('Testing')) // to blur
     const span = screen.queryByText('input has errors')
 
     expect(span).not.toBeInTheDocument()
   })
 
-  it('must show the correct error when one validation fails', () => {
+  it('must show the correct error when one validation fails', async () => {
     setup2()
 
     const input = screen.getByRole('textbox')
-    fireEvent.focus(input)
-    fireEvent.change(input, { target: { value: 'ab' } })
-    fireEvent.blur(input)
+    await userEvent.type(input, 'ab')
+    await userEvent.click(screen.queryByText('Testing')) // to blur
     const span1 = screen.queryByText('input has required errors')
     const span2 = screen.queryByText('input has minLength errors')
 
@@ -114,13 +115,12 @@ describe('Input validations', () => {
   // Test validators
   // Test validators
   // Test validators
-  it('must not show error message when required and have a value', () => {
+  it('must not show error message when required and have a value', async () => {
     setup1()
 
     const input = screen.getByRole('textbox')
-    fireEvent.focus(input)
-    fireEvent.change(input, { target: { value: 'a' } })
-    fireEvent.blur(input)
+    await userEvent.type(input, 'a')
+    await userEvent.click(screen.getByText('Testing'))
     const span = screen.queryByText('input has errors')
 
     expect(span).not.toBeInTheDocument()
@@ -130,41 +130,32 @@ describe('Input validations', () => {
     setupMinL()
 
     const input = screen.getByRole('textbox')
-    fireEvent.focus(input)
-    fireEvent.change(input, { target: { value: 'a' } })
-    fireEvent.blur(input)
+    await userEvent.type(input, 'a')
+    await userEvent.click(screen.getByText('Testing')) // To blur
     const span = screen.queryByText('input has minLength errors')
     expect(span).toBeInTheDocument()
 
-    fireEvent.focus(input)
-    fireEvent.change(input, { target: { value: 'abc' } })
-    fireEvent.blur(input)
+    await userEvent.type(input, 'abc')
+    await userEvent.click(screen.getByText('Testing')) // To blur
 
-    try {
-      await screen.findByText('input has minLength errors')
-      expect(false).toBeTruthy()
-    } catch (e) {
-      expect(true).toBeTruthy()
-    }
+    expect(
+      screen.queryByText('input has minLength errors')
+    ).not.toBeInTheDocument()
   })
 
-  it('must show an error when max length validation not passes', () => {
+  it('must show an error when max length validation not passes', async () => {
     setupMaxL()
 
     const input = screen.getByRole('textbox')
-    fireEvent.focus(input)
-    fireEvent.change(input, { target: { value: 'a' } })
-    fireEvent.blur(input)
+    await userEvent.type(input, 'a')
+    await userEvent.click(screen.getByText('Testing')) // To blur
     const span = screen.queryByText('input has maxLength errors')
     expect(span).not.toBeInTheDocument()
 
-    fireEvent.focus(input)
-    fireEvent.change(input, { target: { value: 'abcde' } })
-    fireEvent.blur(input)
+    await userEvent.type(input, 'abcde')
+    await userEvent.click(screen.getByText('Testing')) // To blur
 
-    screen
-      .findByText('input has maxLength errors')
-      .catch(() => expect(span).toBeInTheDocument())
+    expect(screen.getByText('input has maxLength errors')).toBeInTheDocument()
   })
 
   it('must hide an error when min validation passes', async () => {
@@ -185,23 +176,19 @@ describe('Input validations', () => {
     expect(screen.queryByText('input has min errors')).not.toBeInTheDocument()
   })
 
-  it('must hide an error when max validation passes', () => {
+  it('must hide an error when max validation passes', async () => {
     setupMax()
 
     const input = screen.getByRole('textbox')
-    fireEvent.focus(input)
-    fireEvent.change(input, { target: { value: 10.1 } })
-    fireEvent.blur(input)
+    await userEvent.type(input, '10.1')
+    await userEvent.click(screen.queryByText('Testing')) // to blur
     const span = screen.queryByText('input has max errors')
     expect(span).toBeInTheDocument()
 
-    fireEvent.focus(input)
-    fireEvent.change(input, { target: { value: 9.99 } })
-    fireEvent.blur(input)
+    await userEvent.clear(input)
+    await userEvent.type(input, '9.99')
+    await userEvent.click(screen.queryByText('Testing')) // to blur
 
-    screen
-      .findByText('input has max errors')
-      .then(() => expect(true).toBeFalse())
-      .catch(() => expect(span).not.toBeInTheDocument())
+    expect(screen.queryByText('input has max errors')).not.toBeInTheDocument()
   })
 })
