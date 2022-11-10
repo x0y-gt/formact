@@ -2,25 +2,31 @@ import { useCallback, useReducer } from 'react'
 // import field from './field'
 
 /*
- * Each validator return true if error
+ * Each validator return false when validation fails
  */
 const definedValidations = {
-  required: (val) => !String(val).trim().length,
-  minLength: (val, opts) => String(val).trim().length < opts,
-  maxLength: (val, opts) => String(val).trim().length > opts,
-  min: (val, opts) => isNaN(val) || Number(val) < opts,
-  max: (val, opts) => isNaN(val) || Number(val) > opts,
-  regex: (val, opts) => Number(val) > opts
+  required: (val) => String(val).trim().length,
+  minLength: (val, min) => String(val).trim().length >= min,
+  maxLength: (val, max) => String(val).trim().length <= max,
+  min: (val, min) => isNaN(val) || Number(val) >= min,
+  max: (val, max) => isNaN(val) || Number(val) <= max,
+  regex: (val, regex) => {
+    if (regex instanceof RegExp === false)
+      throw new Error('Invalid regular expression in validator')
+
+    return regex.test(val)
+  }
 }
 
 function validate(value, validations) {
   const keys = Object.keys(validations)
   const errors = keys.filter((key) => {
-    if (key in definedValidations && validations[key]) {
-      const error = definedValidations[key](value, validations[key])
-      return error ? error : false
-    }
-    return false
+    if (key in definedValidations)
+      return !definedValidations[key](value, validations[key])
+    else if (typeof validations[key] === 'function')
+      return !validations[key](value)
+
+    return true
   })
 
   return errors

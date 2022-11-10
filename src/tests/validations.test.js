@@ -35,6 +35,8 @@ const FormExample2 = ({ validations }) => {
       {isTouched && errors.maxLength && <span>input has maxLength errors</span>}
       {isTouched && errors.min && <span>input has min errors</span>}
       {isTouched && errors.max && <span>input has max errors</span>}
+      {isTouched && errors.regex && <span>input has regex errors</span>}
+      {isTouched && errors.anything && <span>input has anything errors</span>}
     </form>
   )
 }
@@ -72,6 +74,16 @@ describe('Input validations', () => {
 
   const setupMax = () => {
     const validations = { max: 10 }
+    return render(<FormExample2 validations={validations} />)
+  }
+
+  const setupRegex = () => {
+    const validations = { regex: /^[^\s@]+@[^\s@]+\.[^\s@]+$/ }
+    return render(<FormExample2 validations={validations} />)
+  }
+
+  const setupFncVal = () => {
+    const validations = { anything: (val) => val === 'ok' }
     return render(<FormExample2 validations={validations} />)
   }
 
@@ -190,5 +202,39 @@ describe('Input validations', () => {
     await userEvent.click(screen.queryByText('Testing')) // to blur
 
     expect(screen.queryByText('input has max errors')).not.toBeInTheDocument()
+  })
+
+  it('must hide the error when regex validation passes', async () => {
+    setupRegex()
+
+    const input = screen.getByRole('textbox')
+    await userEvent.type(input, 'not an email')
+    await userEvent.click(screen.queryByText('Testing')) // to blur
+    const span = screen.queryByText('input has regex errors')
+    expect(span).toBeInTheDocument()
+
+    await userEvent.clear(input)
+    await userEvent.type(input, 'test@test.com')
+    await userEvent.click(screen.queryByText('Testing')) // to blur
+
+    expect(screen.queryByText('input has regex errors')).not.toBeInTheDocument()
+  })
+
+  it('must show error when validating with a custom function', async () => {
+    setupFncVal()
+
+    const input = screen.getByRole('textbox')
+    await userEvent.type(input, 'the validator expects to find an "ok" here')
+    await userEvent.click(screen.queryByText('Testing')) // to blur
+    const span = screen.getByText('input has anything errors')
+    expect(span).toBeInTheDocument()
+
+    await userEvent.clear(input)
+    await userEvent.type(input, 'ok')
+    await userEvent.click(screen.queryByText('Testing')) // to blur
+
+    expect(
+      screen.queryByText('input has anything errors')
+    ).not.toBeInTheDocument()
   })
 })
