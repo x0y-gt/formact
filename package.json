@@ -1,10 +1,10 @@
 {
-  "name": "formact",
-  "version": "0.0.9",
+  "name": "react-forms-tools",
+  "version": "0.9.0",
   "description": "Simple forms for react",
   "author": "x0y-gt",
   "license": "GNUv3",
-  "repository": "x0y-gt/formact",
+  "repository": "x0y-gt/react-form-tools",
   "type": "module",
   "main": "dist/index.js",
   "module": "dist/index.modern.js",
