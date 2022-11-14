@@ -22,6 +22,20 @@ const FormExample = () => {
   )
 }
 
+const FormExample2 = () => {
+  const { register } = useForm()
+  const { props, isTouched } = register('test', {
+    defaultValue: 'testing'
+  })
+
+  return (
+    <form>
+      <input type='text' {...props} />
+      {isTouched && <span>input touched</span>}
+    </form>
+  )
+}
+
 describe('Create inputs with add helper', () => {
   it('should return the initial properties of an input', () => {
     const { result } = renderHook(() => useForm())
@@ -34,6 +48,14 @@ describe('Create inputs with add helper', () => {
     expect(Object.keys(result.current.fields.name).sort()).toEqual(
       ['props', 'name', 'errors', 'isTouched', 'validations'].sort()
     )
+  })
+
+  it('must set the specified default value', () => {
+    render(<FormExample2 />)
+
+    const input = screen.getByRole('textbox')
+
+    expect(input.value).toBe('testing')
   })
 
   it('must change internal state of input when entered text', () => {
