@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import '@testing-library/jest-dom'
 
-import useForm from '../use-form.js'
+import { useForm } from '../index.js'
 
 const FormExample = ({ validations }) => {
   const { register } = useForm()

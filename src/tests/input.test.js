@@ -8,7 +8,7 @@ import {
 } from '@testing-library/react'
 import '@testing-library/jest-dom'
 
-import useForm from '../use-form.js'
+import useForm from '../index.js'
 
 const FormExample = () => {
   const { register } = useForm()
