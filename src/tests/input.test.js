@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import {
   render,
   screen,
@@ -6,6 +6,7 @@ import {
   act,
   fireEvent
 } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import '@testing-library/jest-dom'
 
 import useForm from '../index.js'
@@ -36,6 +37,20 @@ const FormExample2 = () => {
   )
 }
 
+const FormExample3 = ({ onChangeFnc, preOnChangeFnc }) => {
+  const { register } = useForm()
+  const { props } = register('test', {
+    onChange: onChangeFnc || null,
+    preOnChange: preOnChangeFnc || null
+  })
+
+  return (
+    <form>
+      <input type='text' {...props} />
+    </form>
+  )
+}
+
 describe('Create inputs with add helper', () => {
   it('should return the initial properties of an input', () => {
     const { result } = renderHook(() => useForm())
@@ -46,7 +61,15 @@ describe('Create inputs with add helper', () => {
 
     expect('name' in result.current.fields).toBeTruthy()
     expect(Object.keys(result.current.fields.name).sort()).toEqual(
-      ['props', 'name', 'errors', 'isTouched', 'validations'].sort()
+      [
+        'props',
+        'name',
+        'errors',
+        'isTouched',
+        'validations',
+        'preOnChange',
+        'onChange'
+      ].sort()
     )
   })
 
@@ -78,5 +101,33 @@ describe('Create inputs with add helper', () => {
 
     const span = screen.getByText('input touched')
     expect(span).toBeInTheDocument()
+  })
+
+  it('must call custom onchange when defined', async () => {
+    const onChangeMock = jest.fn()
+    onChangeMock.mockImplementation((e) => e.target.value)
+    render(<FormExample3 onChangeFnc={onChangeMock} />)
+
+    const input = screen.getByRole('textbox')
+    await userEvent.type(input, 'holi')
+
+    expect(onChangeMock).toHaveBeenCalledTimes(4) // one per character
+    expect(onChangeMock.mock.results[3].value).toBe('holi')
+  })
+
+  it('should call custom preonchange when defined and alter input value', async () => {
+    const onChangeMock = jest.fn()
+    onChangeMock.mockImplementation((e) => {
+      e.target.value = e.target.value.toLowerCase()
+      return e
+    })
+    render(<FormExample3 preOnChangeFnc={onChangeMock} />)
+
+    const input = screen.getByRole('textbox')
+    await userEvent.type(input, 'HoLi')
+
+    expect(onChangeMock).toHaveBeenCalledTimes(4) // one per character
+    expect(onChangeMock.mock.results[3].value.target.value).toBe('holi')
+    expect(input.value).toBe('holi')
   })
 })
