@@ -1,7 +1,7 @@
 import { useCallback, useReducer } from 'react'
 import field from './field'
 
-const reducer = (state, ctx) => {
+function reducer(state, ctx) {
   if (ctx.action === 'register') {
     return { ...state, [ctx.payload.name]: ctx.payload }
   }
@@ -40,5 +40,21 @@ export default function useForm() {
     [fields]
   )
 
-  return { fields, register }
+  const handleSubmit = useCallback(
+    (handler = () => null) => {
+      // check errors
+      const errors = Object.keys(fields)
+        .map((fieldName) =>
+          fields[fieldName]._validate(fields[fieldName].props.value)
+        )
+        .reduce(
+          (prev, current) => (current.length ? prev + current.length : prev),
+          0
+        )
+      return !errors
+    },
+    [fields]
+  )
+
+  return { fields, register, handleSubmit }
 }

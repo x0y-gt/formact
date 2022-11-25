@@ -1,17 +1,11 @@
-import React, { useState } from 'react'
-import {
-  render,
-  screen,
-  renderHook,
-  act,
-  fireEvent
-} from '@testing-library/react'
+import React from 'react'
+import { render, screen, fireEvent } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import '@testing-library/jest-dom'
 
 import useForm from '../index.js'
 
-const FormExample = () => {
+const InputExample = () => {
   const { register } = useForm()
   const { props, isTouched } = register('test')
 
@@ -23,7 +17,7 @@ const FormExample = () => {
   )
 }
 
-const FormExample2 = () => {
+const InputExample2 = () => {
   const { register } = useForm()
   const { props, isTouched } = register('test', {
     defaultValue: 'testing'
@@ -37,7 +31,7 @@ const FormExample2 = () => {
   )
 }
 
-const FormExample3 = ({ onChangeFnc, preOnChangeFnc }) => {
+const InputExample3 = ({ onChangeFnc, preOnChangeFnc }) => {
   const { register } = useForm()
   const { props } = register('test', {
     onChange: onChangeFnc || null,
@@ -51,30 +45,9 @@ const FormExample3 = ({ onChangeFnc, preOnChangeFnc }) => {
   )
 }
 
-describe('Create inputs with add helper', () => {
-  it('should return the initial properties of an input', () => {
-    const { result } = renderHook(() => useForm())
-
-    act(() => {
-      result.current.register('name')
-    })
-
-    expect('name' in result.current.fields).toBeTruthy()
-    expect(Object.keys(result.current.fields.name).sort()).toEqual(
-      [
-        'props',
-        'name',
-        'errors',
-        'isTouched',
-        'validations',
-        'preOnChange',
-        'onChange'
-      ].sort()
-    )
-  })
-
+describe('Create inputs with register helper', () => {
   it('must set the specified default value', () => {
-    render(<FormExample2 />)
+    render(<InputExample2 />)
 
     const input = screen.getByRole('textbox')
 
@@ -82,7 +55,7 @@ describe('Create inputs with add helper', () => {
   })
 
   it('must change internal state of input when entered text', () => {
-    render(<FormExample />)
+    render(<InputExample />)
 
     const input = screen.getByRole('textbox')
     fireEvent.change(input, { target: { value: 'hello world' } })
@@ -94,7 +67,7 @@ describe('Create inputs with add helper', () => {
   })
 
   it('must change isTouched when focused for the first time', () => {
-    render(<FormExample />)
+    render(<InputExample />)
 
     const input = screen.getByRole('textbox')
     fireEvent.focus(input)
@@ -106,13 +79,14 @@ describe('Create inputs with add helper', () => {
   it('must call custom onchange when defined', async () => {
     const onChangeMock = jest.fn()
     onChangeMock.mockImplementation((e) => e.target.value)
-    render(<FormExample3 onChangeFnc={onChangeMock} />)
+    render(<InputExample3 onChangeFnc={onChangeMock} />)
 
     const input = screen.getByRole('textbox')
     await userEvent.type(input, 'holi')
 
     expect(onChangeMock).toHaveBeenCalledTimes(4) // one per character
     expect(onChangeMock.mock.results[3].value).toBe('holi')
+    onChangeMock.mockRestore()
   })
 
   it('should call custom preonchange when defined and alter input value', async () => {
@@ -121,7 +95,7 @@ describe('Create inputs with add helper', () => {
       e.target.value = e.target.value.toLowerCase()
       return e
     })
-    render(<FormExample3 preOnChangeFnc={onChangeMock} />)
+    render(<InputExample3 preOnChangeFnc={onChangeMock} />)
 
     const input = screen.getByRole('textbox')
     await userEvent.type(input, 'HoLi')
@@ -129,5 +103,6 @@ describe('Create inputs with add helper', () => {
     expect(onChangeMock).toHaveBeenCalledTimes(4) // one per character
     expect(onChangeMock.mock.results[3].value.target.value).toBe('holi')
     expect(input.value).toBe('holi')
+    onChangeMock.mockRestore()
   })
 })

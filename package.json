@@ -12,8 +12,8 @@
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup -c -w",
-    "test": "react-scripts test --env=jsdom",
-    "test:watch": "react-scripts test --env=jsdom"
+    "test": "react-scripts test --env=jsdom --coverage",
+    "test:watch": "react-scripts test --env=jsdom --coverage"
   },
   "peerDependencies": {
     "react": "^18.0.0"
