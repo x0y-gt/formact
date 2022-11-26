@@ -80,4 +80,25 @@ describe('Test a complete form', () => {
 
     expect(submitResult).toBeTruthy()
   })
+
+  it('should call a custom onsubmit fnc with the form data', async () => {
+    const customOnSubmit = jest.fn((data) => data)
+    const { result } = renderHook(() => useForm())
+
+    await act(() => {
+      result.current.register('name', { validations: { required: true } })
+    })
+    await act(() => {
+      result.current.fields['name'].props.onChange({
+        target: { value: 'something' }
+      })
+    })
+
+    await act(() => {
+      result.current.handleSubmit(customOnSubmit)
+    })
+
+    expect(customOnSubmit).toHaveBeenCalledTimes(1)
+    expect(customOnSubmit.mock.results[0].value.name).toBe('something')
+  })
 })

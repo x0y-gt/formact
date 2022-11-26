@@ -1,6 +1,6 @@
 const resolve = require('@rollup/plugin-node-resolve')
 const commonjs = require('@rollup/plugin-commonjs')
-// import { terser } from 'rollup-plugin-terser'
+const { terser } = require('rollup-plugin-terser')
 const peerDepsExternal = require('rollup-plugin-peer-deps-external')
 const { babel } = require('@rollup/plugin-babel')
 
@@ -29,7 +29,8 @@ module.exports = [
       peerDepsExternal(),
       resolve(),
       commonjs(),
-      babel({ babelHelpers: 'bundled' })
+      babel({ babelHelpers: 'bundled' }),
+      terser()
     ], // , terser()
     external: ['react', 'react-dom']
   }

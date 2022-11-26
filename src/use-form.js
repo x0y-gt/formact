@@ -24,6 +24,16 @@ function reducer(state, ctx) {
   return state
 }
 
+function formData(fields) {
+  return Object.keys(fields).reduce(
+    (data, fieldName) => ({
+      ...data,
+      ...{ [fieldName]: fields[fieldName].props.value }
+    }),
+    {}
+  )
+}
+
 export default function useForm() {
   const [fields, dispatch] = useReducer(reducer, {})
 
@@ -51,7 +61,11 @@ export default function useForm() {
           (prev, current) => (current.length ? prev + current.length : prev),
           0
         )
-      return !errors
+
+      if (errors) return false
+
+      if (handler) handler(formData(fields))
+      return true
     },
     [fields]
   )
