@@ -1,6 +1,6 @@
 {
   "name": "@milkyweb/use-form",
-  "version": "0.9.3",
+  "version": "0.9.4",
   "description": "A lightweight and easy to use hook to develop forms in react",
   "repository": "https://github.com/x0y-gt/use-form",
   "author": "x0y-gt",
