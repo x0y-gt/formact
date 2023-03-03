@@ -41,6 +41,7 @@ describe('Test a complete form', () => {
         'validations',
         'preOnChange',
         'onChange',
+        'setValue',
         '_validate'
       ].sort()
     )

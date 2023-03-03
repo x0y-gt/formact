@@ -18,6 +18,7 @@ export default function field(name, dispatchAction, opts = {}) {
     onChange,
     validations
   }
+
   ctx._validate = (value) => {
     const errors = validate(value, validations)
     if (ctx.errors || errors.length)
@@ -57,6 +58,13 @@ export default function field(name, dispatchAction, opts = {}) {
     onBlur: (e) => {
       if (validations) ctx._validate(e.target.value)
     }
+  }
+
+  // opts
+  ctx.setValue = function setNewValue(value) {
+    ctx.props.onChange({
+      target: { value }
+    })
   }
 
   return ctx

@@ -1,5 +1,11 @@
 import React from 'react'
-import { render, screen, fireEvent } from '@testing-library/react'
+import {
+  render,
+  renderHook,
+  screen,
+  fireEvent,
+  act
+} from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import '@testing-library/jest-dom'
 
@@ -104,5 +110,18 @@ describe('Create inputs with register helper', () => {
     expect(onChangeMock.mock.results[3].value.target.value).toBe('holi')
     expect(input.value).toBe('holi')
     onChangeMock.mockRestore()
+  })
+})
+
+describe('Test setValue for an input', () => {
+  it('calls onChange when modifying the value through setValue', async () => {
+    const { result } = renderHook(() => useForm())
+
+    await act(() => {
+      const { setValue } = result.current.register('test')
+      setValue(7)
+    })
+
+    expect(result.current.fields.test.props.value).toBe(7)
   })
 })
