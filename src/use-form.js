@@ -5,6 +5,15 @@ function reducer(state, ctx) {
   if (ctx.action === 'register') {
     return { ...state, [ctx.payload.name]: ctx.payload }
   }
+  if (ctx.action === 'touchAll') {
+    return Object.keys(state).reduce(
+      (accum, fieldName) => ({
+        ...accum,
+        ...{ [fieldName]: { ...state[fieldName], isTouched: true } }
+      }),
+      {}
+    )
+  }
 
   const fieldCtx = state[ctx.payload.name]
   if (ctx.action === 'update') {
@@ -52,6 +61,8 @@ export default function useForm() {
 
   const handleSubmit = useCallback(
     (handler = () => null) => {
+      dispatch({ action: 'touchAll' })
+
       // check errors
       const errors = Object.keys(fields)
         .map((fieldName) =>
