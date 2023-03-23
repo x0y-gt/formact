@@ -1,20 +1,31 @@
 import React from 'react'
 import { Container, Row, Col, Form, Button } from 'react-bootstrap'
 
-import { useInput } from 'formact'
-import 'formact/dist/index.css'
+import useForm from '@milkyweb/use-form'
 
 const App = () => {
-  const [val] = useInput();
+  const { register, handleSubmit } = useForm()
+
+  const { props, errors } = register('name', {
+    validations: {
+      required: true
+    }
+  })
+
+  const onSubmit = (e) => {
+    e.preventDefault()
+    console.log(handleSubmit((data) => console.log(data)))
+  }
 
   return (
     <Container>
       <Row>
         <Col>
-          <Form>
+          <Form onSubmit={onSubmit}>
             <Form.Group>
               <Form.Label>Nombre Completo</Form.Label>
-              <Form.Control type=''></Form.Control>
+              <Form.Control type='text' {...props}></Form.Control>
+              {errors.required && <p>Este campo es requerido</p>}
             </Form.Group>
             <Form.Group>
               <Form.Label>Telefono</Form.Label>
@@ -36,7 +47,9 @@ const App = () => {
               <Form.Label>Comprobante de Pago</Form.Label>
               <Form.Control></Form.Control>
             </Form.Group>
-            <Button>Enviar</Button>
+            <Button className='mt-3' type='submit'>
+              Enviar
+            </Button>
           </Form>
         </Col>
       </Row>
